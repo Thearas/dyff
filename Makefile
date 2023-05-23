@@ -23,6 +23,10 @@ sources := $(wildcard cmd/dyff/*.go internal/cmd/*.go pkg/dyff/*.go)
 .PHONY: all
 all: clean test
 
+.PHONY: build
+build:
+	go build ./cmd/dyff
+
 .PHONY: clean
 clean:
 	@rm -rf dist unit.coverprofile

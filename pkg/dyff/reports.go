@@ -1,7 +1,9 @@
 package dyff
 
 import (
+	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/gonvenience/ytbx"
 )
@@ -39,22 +41,37 @@ func (r Report) Filter(paths ...string) (result Report) {
 	})
 }
 
+func isGoPath(p string) bool { return strings.HasPrefix(p, "/") }
+
+// TODO(Thearas): Prefix search.
 // Exclude accepts YAML paths as input and returns a new report with differences without those paths
-func (r Report) Exclude(paths ...string) (result Report) {
+func (r Report) Exclude(paths ...string) (result Report, err error) {
 	if len(paths) == 0 {
-		return r
+		return r, nil
+	}
+
+	ps := make([]string, len(paths))
+	for i, pathString := range paths {
+		if !isGoPath(pathString) {
+			return r, fmt.Errorf("exclude path should be a Go Patch, but got %s", pathString)
+		}
+
+		path, err := ytbx.ParsePathStringUnsafe(pathString)
+		if err != nil {
+			return r, err
+		}
+		ps[i] = path.String()
 	}
 
 	return r.filter(func(filterPath *ytbx.Path) bool {
-		for _, pathString := range paths {
-			path, err := ytbx.ParsePathStringUnsafe(pathString)
-			if err == nil && filterPath != nil && path.String() == filterPath.String() {
+		for _, pathString := range ps {
+			if err == nil && filterPath != nil && strings.HasPrefix(filterPath.String(), pathString) {
 				return false
 			}
 		}
 
 		return true
-	})
+	}), nil
 }
 
 // FilterRegexp accepts regular expressions as input and returns a new report with differences for matching those patterns

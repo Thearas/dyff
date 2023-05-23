@@ -83,7 +83,7 @@ func applyReportOptionsFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVar(&reportOptions.excludeRegexps, "exclude-regexp", defaults.excludeRegexps, "exclude reports from a set of differences based on supplied regular expressions")
 
 	// Main output preferences
-	cmd.Flags().StringVarP(&reportOptions.style, "output", "o", defaults.style, "specify the output style, supported styles: human, or brief")
+	cmd.Flags().StringVarP(&reportOptions.style, "output", "o", defaults.style, "specify the output style, supported styles: human, json, or brief")
 	cmd.Flags().BoolVarP(&reportOptions.omitHeader, "omit-header", "b", defaults.omitHeader, "omit the dyff summary header")
 	cmd.Flags().BoolVarP(&reportOptions.exitWithCode, "set-exit-code", "s", defaults.exitWithCode, "set program exit code, with 0 meaning no difference, 1 for differences detected, and 255 for program error")
 
@@ -201,6 +201,16 @@ func writeReport(cmd *cobra.Command, report dyff.Report) error {
 	switch strings.ToLower(reportOptions.style) {
 	case "human", "bosh":
 		reportWriter = &dyff.HumanReport{
+			Report:               report,
+			DoNotInspectCerts:    reportOptions.doNotInspectCerts,
+			NoTableStyle:         reportOptions.noTableStyle,
+			OmitHeader:           reportOptions.omitHeader,
+			UseGoPatchPaths:      reportOptions.useGoPatchPaths,
+			MinorChangeThreshold: 0.1,
+		}
+
+	case "json":
+		reportWriter = &dyff.JSONReport{
 			Report:               report,
 			DoNotInspectCerts:    reportOptions.doNotInspectCerts,
 			NoTableStyle:         reportOptions.noTableStyle,

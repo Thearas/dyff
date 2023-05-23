@@ -28,11 +28,13 @@ import (
 )
 
 // Constants to distinguish between the different kinds of differences
+type DiffKind = rune
+
 const (
-	ADDITION     = '+'
-	REMOVAL      = '-'
-	MODIFICATION = '±'
-	ORDERCHANGE  = '⇆'
+	ADDITION     DiffKind = '+'
+	REMOVAL      DiffKind = '-'
+	MODIFICATION DiffKind = '±'
+	ORDERCHANGE  DiffKind = '⇆'
 	// ILLEGAL      = '✕'
 	// ATTENTION    = '⚠'
 )
@@ -42,7 +44,7 @@ const (
 type Detail struct {
 	From *yamlv3.Node
 	To   *yamlv3.Node
-	Kind rune
+	Kind DiffKind
 }
 
 // Diff encapsulates everything noteworthy about a difference

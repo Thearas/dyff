@@ -102,7 +102,10 @@ types are: YAML (http://yaml.org/) and JSON (http://json.org/).
 		}
 
 		if reportOptions.excludes != nil {
-			report = report.Exclude(reportOptions.excludes...)
+			report, err = report.Exclude(reportOptions.excludes...)
+			if err != nil {
+				return err
+			}
 		}
 
 		if reportOptions.excludeRegexps != nil {
